@@ -6,7 +6,7 @@ export class BookScraperController {
   constructor(private readonly service: BookScraperService) {}
 
   @Get()
-  public initializeScraping() {
-    return this.service.initializeScraping();
+  public getBooks() {
+    return this.service.getBooks();
   }
 }

@@ -60,13 +60,6 @@ export class PageScraperService {
           .querySelectorAll('.breadcrumb li a')?.[2]
           ?.textContent?.trim() || '';
 
-      const infoRows = Array.from(document.querySelectorAll('table.table tr'));
-      const productInfo: Record<string, string> = {};
-      for (const row of infoRows) {
-        const key = row.querySelector('th')?.textContent?.trim() || '';
-        const value = row.querySelector('td')?.textContent?.trim() || '';
-        if (key) productInfo[key] = value;
-      }
 
       return {
         title,
@@ -77,7 +70,6 @@ export class PageScraperService {
         category,
         description,
         imageUrl,
-        productInfo,
       };
     });
   }

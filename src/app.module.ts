@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { BookScraperModule } from './book-scraper/book-scraper.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { EnvironmentKeys } from './shared/environment.keys';
+import { BooksModule } from './books/books.module';
 
 @Module({
   imports: [
@@ -9,17 +11,20 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        type: 'postgres',
-        host: config.get('DB_HOST'),
-        port: Number(config.get<number>('DB_PORT') ?? 0),
-        username: config.get('DB_USER'),
-        password: config.get('DB_PASS'),
-        database: config.get('DB_NAME'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: true,
-      }),
+      useFactory: (config: ConfigService) => {
+        return {
+          type: 'postgres',
+          host: config.get(EnvironmentKeys.DB_HOST),
+          port: Number(config.get<number>(EnvironmentKeys.DB_PORT) ?? 0),
+          username: config.get(EnvironmentKeys.DB_USER),
+          password: config.get(EnvironmentKeys.DB_PASS),
+          database: config.get(EnvironmentKeys.DB_NAME),
+          autoLoadEntities: true,
+          synchronize: config.get(EnvironmentKeys.DB_SYNC) === 'true',
+        };
+      },
     }),
+    BooksModule,
   ],
   controllers: [],
   providers: [],

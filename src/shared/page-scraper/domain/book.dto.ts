@@ -7,5 +7,4 @@ export interface BookDto {
   category: string;
   description: string;
   imageUrl: string;
-  productInfo: Record<string, string>;
 }
