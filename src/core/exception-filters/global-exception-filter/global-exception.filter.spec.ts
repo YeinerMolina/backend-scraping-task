@@ -1,7 +1,7 @@
-import { GlobalExceptionFilterFilter } from './global-exception-filter.filter';
+import { GlobalExceptionFilter } from './global-exception.filter';
 
-describe('GlobalExceptionFilterFilter', () => {
+describe('GlobalExceptionFilter', () => {
   it('should be defined', () => {
-    expect(new GlobalExceptionFilterFilter()).toBeDefined();
+    expect(new GlobalExceptionFilter()).toBeDefined();
   });
 });

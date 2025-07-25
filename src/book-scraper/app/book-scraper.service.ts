@@ -1,40 +1,44 @@
 import { Injectable } from '@nestjs/common';
 import { Browser, Page } from 'puppeteer';
-import { BrowserManagerService } from 'src/shared/browser-manager/browser-manager.service';
-import { PageScraperService } from 'src/shared/page-scraper/app/page-scraper.service';
-import { BookDto } from 'src/shared/page-scraper/domain/book.dto';
+import { BrowserManagerService } from '../../shared/browser-manager/browser-manager.service';
+import { PageScraperService } from '../../shared/page-scraper/app/page-scraper.service';
+import { BookDto } from '../../shared/page-scraper/domain/book.dto';
 import { IScrapingResult } from '../domain/book-scraper.interface';
-import { BooksService } from 'src/books/app/books.service';
+import { BooksService } from '../../books/app/books.service';
+import { ConfigService } from '@nestjs/config';
+import { EnvironmentKeys } from '../../shared/environment.keys';
 
 @Injectable()
 export class BookScraperService {
   constructor(
     private readonly browserManager: BrowserManagerService,
     private readonly pageScraper: PageScraperService,
-    private readonly booksService: BooksService
+    private readonly booksService: BooksService,
+    private readonly configService: ConfigService
   ) {}
 
   private readonly pageUrl: string = 'https://books.toscrape.com/';
 
   public async getBooks(): Promise<IScrapingResult> {
     const books = await this.initializeScraping();
-    await this.saveBooks(books.accepted)
+    await this.saveBooks(books.accepted);
     return books;
   }
 
-  private async saveBooks(books: BookDto[]){
-    const requests = books.map((book) => this.booksService.createOrUpdateByTitle(book));
+  private async saveBooks(books: BookDto[]) {
+    const requests = books.map(book => this.booksService.createOrUpdateByTitle(book));
     await Promise.all(requests);
   }
 
   private async initializeScraping() {
+    const booksLimit = 25;
     const browser = await this.browserManager.launch();
     try {
       const page = await browser.newPage();
       page.setDefaultNavigationTimeout(60000);
 
       await page.goto(this.pageUrl, { waitUntil: 'domcontentloaded' });
-      const bookUrls = await this.pageScraper.scrapeBookUrls(page);
+      const bookUrls = await this.pageScraper.scrapeBookUrls(page, booksLimit);
       await page.close();
 
       return await this.scrapeBookDetailsInChunks(browser, bookUrls);
@@ -44,7 +48,7 @@ export class BookScraperService {
   }
 
   private async scrapeBookDetailsInChunks(browser: Browser, urls: string[]): Promise<IScrapingResult> {
-    const chunkSize = 1;
+    const chunkSize = this.configService.getOrThrow(EnvironmentKeys.SCRAPER_PARALEL_JOBS);
     const allAccepted: BookDto[] = [];
     const allRejected: string[] = [];
 
@@ -56,16 +60,10 @@ export class BookScraperService {
           let page: Page | null = null;
 
           try {
-            page = await browser.newPage()
-            console.log('pageCreated ', url)
-            return this.pageScraper.scrapeBookDetail(page, url);
-          } catch(err){
-            console.log(err);
-            throw err
+            page = await browser.newPage();
+            return await this.pageScraper.scrapeBookDetail(page, url);
           } finally {
-            if(page){
-              await page.close();
-            }
+            if (page) await page.close();
           }
         })
       ).then(resp => this.handleResponse(resp));
@@ -87,7 +85,6 @@ export class BookScraperService {
         accepted.push(result.value);
       } else {
         const reason = result.reason?.message || String(result.reason);
-        // console.log(result);
         rejected.add(reason);
       }
     }

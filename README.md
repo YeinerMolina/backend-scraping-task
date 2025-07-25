@@ -1,98 +1,83 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Tarea de Scraping de Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Este proyecto es una aplicación de backend NestJS diseñada para extraer información de libros de un sitio web y almacenarla en una base de datos PostgreSQL. También proporciona una API para acceder a los datos extraídos.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Tabla de Contenidos
+- [Configuración Inicial](#configuración-inicial)
+- [Variables de Entorno](#variables-de-entorno)
+- [Configuración de la Base de Datos](#configuración-de-la-base-de-datos)
+- [Ejecución de la Aplicación](#ejecución-de-la-aplicación)
+- [Endpoints de la API](#endpoints-de-la-api)
 
-## Description
+## Configuración Inicial
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+1.  **Clonar el repositorio:**
+    ```bash
+    git clone https://github.com/your-repo/backend-scraping-task.git
+    cd backend-scraping-task
+    ```
 
-## Project setup
+2.  **Instalar dependencias:**
+    ```bash
+    npm install
+    ```
 
-```bash
-$ npm install
-```
+## Variables de Entorno
 
-## Compile and run the project
+Crea un archivo `.env` en la raíz del proyecto copiando `example.env`:
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+cp example.env .env
 ```
 
-## Run tests
+Edita el archivo `.env` con tus configuraciones específicas. Aquí tienes un desglose de cada variable:
 
-```bash
-# unit tests
-$ npm run test
+-   `DB_HOST`: El nombre de host o la dirección IP de tu servidor de base de datos PostgreSQL (ej. `localhost`).
+-   `DB_PORT`: El número de puerto en el que se está ejecutando tu base de datos PostgreSQL (ej. `5432`).
+-   `DB_USER`: El nombre de usuario para conectarse a tu base de datos PostgreSQL (ej. `postgres`).
+-   `DB_PASS`: La contraseña para el usuario de la base de datos especificado (ej. `1234`).
+-   `DB_NAME`: El nombre de la base de datos a la que conectarse (ej. `nest_books`).
+-   `DB_SYNC`: Establece en `true` para sincronizar automáticamente el esquema de la base de datos con las entidades de TypeORM (ej. `false`)
+-   `SCRAPER_PARALEL_JOBS`: Número de trabajos paralelos (páginas simultaneas) para el scraper de libros (ej. `1`).
 
-# e2e tests
-$ npm run test:e2e
+## Configuración de la Base de Datos
 
-# test coverage
-$ npm run test:cov
-```
+Este proyecto utiliza PostgreSQL. Asegúrate de tener un servidor PostgreSQL en ejecución y una base de datos creada con el nombre especificado en `DB_NAME` en tu archivo `.env`.
 
-## Deployment
+## Ejecución de la Aplicación
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+1.  **Iniciar la aplicación en modo desarrollo:**
+    ```bash
+    npm run start:dev
+    ```
+    La aplicación se ejecutará típicamente en `http://localhost:3000`.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+2.  **Compilar y ejecutar en modo producción:**
+    ```bash
+    npm run build
+    npm run start:prod
+    ```
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+## Endpoints de la API
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+-   **GET /books**
+    -   Recupera todos los libros.
+    -   **Parámetros de consulta:**
+        -   `category` (opcional): Filtra libros por categoría.
+        -   `min` (opcional): Filtra libros con `priceNumber` mayor o igual a este valor.
+        -   `max` (opcional): Filtra libros con `priceNumber` menor o igual a este valor.
+    -   **Ejemplo:** `GET /books?category=fiction&min=10.00&max=50.00`
 
-## Resources
+-   **GET /books/categories**
+    -   Recupera una lista de todas las categorías de libros únicas.
 
-Check out a few resources that may come in handy when working with NestJS:
+-   **GET /books/:id**
+    -   Recupera un solo libro por su ID.
+    -   **Ejemplo:** `GET /books/1`
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+-   **DELETE /books/:id**
+    -   Elimina un libro por su ID.
+    -   **Ejemplo:** `DELETE /books/1`
 
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+-   **GET /book-scraper**
+    -   Activa el proceso de scraping de libros. Esto obtendrá nuevos datos de libros y los guardará en la base de datos.

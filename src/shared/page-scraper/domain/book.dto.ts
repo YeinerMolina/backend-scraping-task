@@ -1,6 +1,7 @@
 export interface BookDto {
   title: string;
   price: string;
+  priceNumber: number;
   availability: string;
   rating: string;
   ratingNumber: number;

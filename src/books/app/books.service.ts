@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateBookDto } from '../domain/dto/create-book.dto';
-import { EntityManager, Repository } from 'typeorm';
+import { Between, LessThanOrEqual, MoreThanOrEqual, EntityManager, Repository, FindOptionsWhere } from 'typeorm';
 import { Book } from '../domain/entities/book.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -9,7 +9,7 @@ export class BooksService {
   constructor(
     @InjectRepository(Book) private readonly bookRepository: Repository<Book>,
     private readonly entityManager: EntityManager
-  ){}
+  ) {}
 
   async createOrUpdateByTitle(book: Partial<CreateBookDto>) {
     const existingBook = await this.bookRepository.findOne({
@@ -25,8 +25,22 @@ export class BooksService {
     }
   }
 
-  async findAll() {
-    return this.bookRepository.find();
+  async findAll(category?: string, min?: number, max?: number) {
+    const where: FindOptionsWhere<Book> = {};
+
+    if (category) {
+      where.category = category;
+    }
+
+    if (min !== undefined && max !== undefined) {
+      where.priceNumber = Between(min, max);
+    } else if (min !== undefined) {
+      where.priceNumber = MoreThanOrEqual(min);
+    } else if (max !== undefined) {
+      where.priceNumber = LessThanOrEqual(max);
+    }
+
+    return this.bookRepository.find({ where });
   }
 
   async findOne(id: number) {
@@ -34,6 +48,6 @@ export class BooksService {
   }
 
   async remove(id: number) {
-    await this.bookRepository.delete({ id })
+    await this.bookRepository.delete({ id });
   }
 }

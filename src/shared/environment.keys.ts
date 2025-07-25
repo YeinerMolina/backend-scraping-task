@@ -5,4 +5,5 @@ export enum EnvironmentKeys {
   DB_PASS = 'DB_PASS',
   DB_NAME = 'DB_NAME',
   DB_SYNC = 'DB_SYNC',
+  SCRAPER_PARALEL_JOBS = 'SCRAPER_PARALEL_JOBS',
 }
